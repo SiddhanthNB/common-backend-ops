@@ -5,13 +5,9 @@ require "http"
 module Keepalive
   module CoreNest
     def self.call(url:, timeout_milliseconds: 90_000)
+      timeout = _timeout_seconds(timeout_milliseconds)
       response = HTTP
-        .timeout(
-          connect: _timeout_seconds(timeout_milliseconds),
-          write: _timeout_seconds(timeout_milliseconds),
-          read: _timeout_seconds(timeout_milliseconds)
-        )
-        .headers({})
+        .timeout(connect: timeout, write: timeout, read: timeout)
         .get(url)
 
       {

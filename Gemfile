@@ -4,6 +4,7 @@ ruby file: ".ruby-version"
 
 gem "bigdecimal", "~> 4.1"
 gem "concurrent-ruby", "~> 1.3"
+gem "dotenv", "~> 3.1"
 gem "ferrum", "~> 0.17"
 gem "http", "~> 6.0"
 gem "logger", "~> 1.7"

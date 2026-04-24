@@ -1,3 +1,5 @@
+require "dotenv/load"
+
 # Rakefile for common-backend-ops repository
 # all rake tasks are defined in the rakelib directory
 

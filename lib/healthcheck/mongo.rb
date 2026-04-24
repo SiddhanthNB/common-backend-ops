@@ -28,8 +28,8 @@ module Healthcheck
     end
 
     def self._mongo_uri
-      url = EnvVars.fetch("ATLAS_DB_URL")
-      password = EnvVars.fetch("ATLAS_DB_PASSWORD")
+      url = EnvVars.fetch("MONGO_CLUSTER_URI")
+      password = EnvVars.fetch("MONGO_USER_PASSWORD")
 
       url.sub(PASSWORD_PLACEHOLDER, EnvVars.encode_password(password))
     end
