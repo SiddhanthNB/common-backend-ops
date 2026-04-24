@@ -1,0 +1,41 @@
+name: Healthcheck Services
+
+on:
+  schedule:
+    - cron: "45 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          # - mongo
+          - postgres
+          - qdrant
+          - redis
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Run healthcheck
+        env:
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_ACCESS_KEY: ${{ secrets.QDRANT_ACCESS_KEY }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          # MONGO_CLUSTER_URI: ${{ secrets.MONGO_CLUSTER_URI }}
+          # MONGO_USER_PASSWORD: ${{ secrets.MONGO_USER_PASSWORD }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: bundle exec rake healthcheck:${{ matrix.task }}

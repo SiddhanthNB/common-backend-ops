@@ -1,0 +1,30 @@
+name: Keepalive Streamlit
+
+on:
+  schedule:
+    - cron: "45 */8 * * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Set up Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Wake Streamlit apps
+        env:
+          BROWSER_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+        run: bundle exec rake keepalive:streamlit
