@@ -1,0 +1,17 @@
+.codex
+.env
+.env.*
+!.env.sample
+
+.bundle/
+vendor/bundle/
+
+.ruby-lsp/
+
+coverage/
+log/
+tmp/
+
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,14 @@
+source "https://rubygems.org"
+
+ruby file: ".ruby-version"
+
+gem "bigdecimal", "~> 4.1"
+gem "concurrent-ruby", "~> 1.3"
+gem "ferrum", "~> 0.17"
+gem "http", "~> 6.0"
+gem "logger", "~> 1.7"
+gem "minitest", "~> 5.25"
+gem "mongo", "~> 2.24"
+gem "pg", "~> 1.6"
+gem "rake", "~> 13.3"
+gem "redis", "~> 5.4"

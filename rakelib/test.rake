@@ -1,0 +1,6 @@
+require "rake/testtask"
+
+Rake::TestTask.new(:test) do |test_task|
+  test_task.libs << "test"
+  test_task.pattern = "test/**/*_test.rb"
+end
