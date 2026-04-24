@@ -1,5 +1,4 @@
 require "yaml"
-require "concurrent"
 
 namespace :keepalive do
   desc "Ping the Core Nest keepalive endpoint"
@@ -19,7 +18,6 @@ namespace :keepalive do
 
   desc "Wake Streamlit apps listed in config/keepalive/streamlit.yaml"
   task :streamlit do
-    require_relative "../lib/common/app_logger"
     require_relative "../lib/common/github_step_summary"
     require_relative "../lib/common/service_task_runner"
     require_relative "../lib/keepalive/streamlit"
@@ -32,51 +30,25 @@ namespace :keepalive do
     raise "No Streamlit targets configured in #{config_path}" if targets.empty?
     raise "Invalid Streamlit concurrency: #{concurrency}" if concurrency <= 0
 
+    orchestrator = Keepalive::Streamlit::Orchestrator.new(urls: targets, concurrency: concurrency)
+
     ServiceTaskRunner.run("Streamlit Keepalive") do
-      executor = Concurrent::FixedThreadPool.new([concurrency, targets.size].min)
-      mutex = Mutex.new
-      results = []
+      result = orchestrator.call
 
-      targets.each do |url|
-        executor.post do
-          result = begin
-            Keepalive::Streamlit.call(url: url).merge(url: url)
-          rescue StandardError => error
-            AppLogger.error("Streamlit keepalive failed for #{url}: #{error.message}")
-            {
-              url: url,
-              success: false,
-              message: error.message
-            }
-          end
-
-          mutex.synchronize { results << result }
-        end
-      end
-
-      executor.shutdown
-      finished = executor.wait_for_termination(600)
-      raise "Timed out waiting for Streamlit keepalive workers to finish" unless finished
-
-      results.sort_by! { |result| result[:url] }
-
-      passed = results.count { |result| result[:success] }
-      failed = results.count - passed
-
-      results.each do |result|
+      result[:results].each do |target_result|
         GithubStepSummary.append(
           [
-            "### #{result[:url]}",
+            "### #{target_result[:url]}",
             "",
-            "- Status: #{result[:success] ? 'SUCCESS' : 'FAILURE'}",
-            "- Details: #{result[:message]}"
+            "- Status: #{target_result[:success] ? 'SUCCESS' : 'FAILURE'}",
+            "- Details: #{target_result[:message]}"
           ].join("\n")
         )
       end
 
       {
-        success: failed.zero?,
-        message: "#{passed}/#{results.size} Streamlit targets passed"
+        success: result[:failed].zero?,
+        message: "#{result[:passed]}/#{result[:total]} Streamlit targets passed"
       }
     end
   end
