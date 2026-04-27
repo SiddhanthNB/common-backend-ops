@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
-require_relative "../../lib/keepalive/core_nest"
+require_relative "../../lib/ops/keepalive/core_nest"
 
 class CoreNestKeepaliveTest < Minitest::Test
   Response = Struct.new(:status)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
-require_relative "../../lib/healthcheck/redis"
+require_relative "../../lib/ops/healthcheck/redis"
 
 class RedisHealthcheckTest < Minitest::Test
   class FakeClient

@@ -3,10 +3,10 @@ require "yaml"
 namespace :keepalive do
   desc "Ping the Core Nest keepalive endpoint"
   task :core_nest do
-    require_relative "../lib/common/service_task_runner"
-    require_relative "../lib/keepalive/core_nest"
+    require_relative "../common/service_task_runner"
+    require_relative "../ops/keepalive/core_nest"
 
-    config_path = File.expand_path("../config/keepalive/core_nest.yaml", __dir__)
+    config_path = File.expand_path("../../config/keepalive/core_nest.yaml", __dir__)
     config = YAML.safe_load(File.read(config_path), aliases: false) || {}
     url = config.fetch("url")
     timeout_milliseconds = Integer(config.fetch("timeout_milliseconds", 90_000))
@@ -18,11 +18,11 @@ namespace :keepalive do
 
   desc "Wake Streamlit apps listed in config/keepalive/streamlit.yaml"
   task :streamlit do
-    require_relative "../lib/common/github_step_summary"
-    require_relative "../lib/common/service_task_runner"
-    require_relative "../lib/keepalive/streamlit"
+    require_relative "../common/github_step_summary"
+    require_relative "../common/service_task_runner"
+    require_relative "../ops/keepalive/streamlit"
 
-    config_path = File.expand_path("../config/keepalive/streamlit.yaml", __dir__)
+    config_path = File.expand_path("../../config/keepalive/streamlit.yaml", __dir__)
     config = YAML.safe_load(File.read(config_path), aliases: false) || {}
     targets = config.fetch("targets", [])
     concurrency = Integer(config.fetch("concurrency", 2))

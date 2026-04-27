@@ -3,7 +3,7 @@
 require "concurrent"
 require "ferrum"
 
-require_relative "../common/app_logger"
+require_relative "../../common/app_logger"
 
 module Keepalive
   module Streamlit

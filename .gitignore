@@ -1,4 +1,3 @@
-.codex
 .env
 .env.*
 !.env.sample
@@ -15,3 +14,6 @@ tmp/
 .DS_Store
 .idea/
 .vscode/
+
+.codex
+AGENTS.md

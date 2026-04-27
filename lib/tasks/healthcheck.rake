@@ -1,9 +1,9 @@
-require_relative "../lib/common/service_task_runner"
+require_relative "../common/service_task_runner"
 
 namespace :healthcheck do
   desc "Probe Redis"
   task :redis do
-    require_relative "../lib/healthcheck/redis"
+    require_relative "../ops/healthcheck/redis"
 
     ServiceTaskRunner.run("Redis Healthcheck") do
       Healthcheck::Redis.call
@@ -12,7 +12,7 @@ namespace :healthcheck do
 
   desc "Probe MongoDB Atlas"
   task :mongo do
-    require_relative "../lib/healthcheck/mongo"
+    require_relative "../ops/healthcheck/mongo"
 
     ServiceTaskRunner.run("MongoDB Healthcheck") do
       Healthcheck::Mongo.call
@@ -21,7 +21,7 @@ namespace :healthcheck do
 
   desc "Probe Qdrant"
   task :qdrant do
-    require_relative "../lib/healthcheck/qdrant"
+    require_relative "../ops/healthcheck/qdrant"
 
     ServiceTaskRunner.run("Qdrant Healthcheck") do
       Healthcheck::Qdrant.call
@@ -30,7 +30,7 @@ namespace :healthcheck do
 
   desc "Probe Supabase Postgres"
   task :postgres do
-    require_relative "../lib/healthcheck/postgres"
+    require_relative "../ops/healthcheck/postgres"
 
     ServiceTaskRunner.run("Postgres Healthcheck") do
       Healthcheck::Postgres.call

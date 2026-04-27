@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "redis"
-require_relative "../common/env_vars"
+require_relative "../../common/env_vars"
 
 module Healthcheck
   module Redis

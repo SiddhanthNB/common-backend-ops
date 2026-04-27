@@ -1,8 +1,6 @@
-name: Healthcheck Services
+name: "Healthcheck: Services"
 
 on:
-  schedule:
-    - cron: "45 */6 * * *"
   workflow_dispatch:
 
 jobs:

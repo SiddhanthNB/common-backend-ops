@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
-require_relative "../../lib/healthcheck/qdrant"
+require_relative "../../lib/ops/healthcheck/qdrant"
 
 class QdrantHealthcheckTest < Minitest::Test
   Response = Struct.new(:status) do

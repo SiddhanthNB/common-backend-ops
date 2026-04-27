@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "mongo"
-require_relative "../common/env_vars"
+require_relative "../../common/env_vars"
 
 module Healthcheck
   module Mongo

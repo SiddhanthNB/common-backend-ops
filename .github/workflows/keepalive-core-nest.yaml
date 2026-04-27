@@ -1,8 +1,6 @@
-name: Keepalive Core Nest
+name: "Keepalive: Core Nest"
 
 on:
-  schedule:
-    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:

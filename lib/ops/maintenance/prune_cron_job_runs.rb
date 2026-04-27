@@ -1,19 +1,25 @@
 # frozen_string_literal: true
 
 require "pg"
-require_relative "../common/env_vars"
+require_relative "../../common/env_vars"
 
-module Healthcheck
-  module Postgres
+module Maintenance
+  module PruneCronJobRuns
     PASSWORD_PLACEHOLDER = "[YOUR-PASSWORD]"
+    RETENTION_INTERVAL = "7 days"
+    QUERY = <<~SQL.freeze
+      delete from cron.job_run_details
+      where end_time < now() - interval '#{RETENTION_INTERVAL}';
+    SQL
 
     def self.call
       connection = ::PG.connect(_postgres_uri)
-      connection.exec("SELECT 1")
+      result = connection.exec(QUERY)
+      deleted_rows = result.cmd_tuples
 
       {
         success: true,
-        message: "Pinged Postgres successfully!"
+        message: "Pruned #{deleted_rows} cron.job_run_details rows older than #{RETENTION_INTERVAL}"
       }
     ensure
       connection&.close

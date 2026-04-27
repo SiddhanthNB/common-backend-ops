@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "httpx"
-require_relative "../common/env_vars"
+require_relative "../../common/env_vars"
 
 module Healthcheck
   module Qdrant
