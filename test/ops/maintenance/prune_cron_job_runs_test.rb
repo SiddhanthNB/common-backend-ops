@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../test_helper"
-require_relative "../../lib/ops/maintenance/prune_cron_job_runs"
+require_relative "../../test_helper"
+require_relative "../../../lib/ops/maintenance/prune_cron_job_runs"
 
 class PruneCronJobRunsTest < Minitest::Test
   class FakeResult

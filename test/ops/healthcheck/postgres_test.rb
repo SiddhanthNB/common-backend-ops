@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../test_helper"
-require_relative "../../lib/ops/healthcheck/postgres"
+require_relative "../../test_helper"
+require_relative "../../../lib/ops/healthcheck/postgres"
 
 class PostgresHealthcheckTest < Minitest::Test
   class FakeConnection

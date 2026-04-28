@@ -18,8 +18,8 @@ namespace :keepalive do
 
   desc "Wake Streamlit apps listed in config/keepalive/streamlit.yaml"
   task :streamlit do
+    require_relative "../common/app_logger"
     require_relative "../common/github_step_summary"
-    require_relative "../common/service_task_runner"
     require_relative "../ops/keepalive/streamlit"
 
     config_path = File.expand_path("../../config/keepalive/streamlit.yaml", __dir__)
@@ -31,25 +31,51 @@ namespace :keepalive do
     raise "Invalid Streamlit concurrency: #{concurrency}" if concurrency <= 0
 
     orchestrator = Keepalive::Streamlit::Orchestrator.new(urls: targets, concurrency: concurrency)
+    title = "Streamlit Keepalive"
 
-    ServiceTaskRunner.run("Streamlit Keepalive") do
-      result = orchestrator.call
+    AppLogger.info("Starting #{title}")
+    result = orchestrator.call
 
-      result[:results].each do |target_result|
-        GithubStepSummary.append(
-          [
-            "### #{target_result[:url]}",
-            "",
-            "- Status: #{target_result[:success] ? 'SUCCESS' : 'FAILURE'}",
-            "- Details: #{target_result[:message]}"
-          ].join("\n")
-        )
-      end
+    success = result[:failed].zero?
+    message = "#{result[:passed]}/#{result[:total]} Streamlit targets passed"
 
-      {
-        success: result[:failed].zero?,
-        message: "#{result[:passed]}/#{result[:total]} Streamlit targets passed"
-      }
+    if success
+      AppLogger.info("#{title}: #{message}")
+    else
+      AppLogger.error("#{title}: #{message}")
     end
+
+    GithubStepSummary.append(
+      [
+        "## #{title}",
+        "",
+        "- Status: #{success ? 'PASS' : 'FAIL'}",
+        "- Details: #{message}"
+      ].join("\n")
+    )
+
+    result[:results].each do |target_result|
+      GithubStepSummary.append(
+        [
+          "### #{target_result[:url]}",
+          "",
+          "- Status: #{target_result[:success] ? 'SUCCESS' : 'FAILURE'}",
+          "- Details: #{target_result[:message]}"
+        ].join("\n")
+      )
+    end
+
+    exit(1) unless success
+  rescue StandardError => error
+    AppLogger.error("#{title} failed: #{error.message}")
+    GithubStepSummary.append(
+      [
+        "## #{title}",
+        "",
+        "- Status: FAIL",
+        "- Details: #{error.message}"
+      ].join("\n")
+    )
+    exit(1)
   end
 end
