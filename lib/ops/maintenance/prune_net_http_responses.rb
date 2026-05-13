@@ -4,12 +4,10 @@ require "pg"
 require_relative "../../common/env_vars"
 
 module Maintenance
-  module PruneCronJobRuns
+  module PruneNetHttpResponses
     PASSWORD_PLACEHOLDER = "[YOUR-PASSWORD]"
-    RETENTION_INTERVAL = "7 days"
     QUERY = <<~SQL.freeze
-      delete from cron.job_run_details
-      where end_time < now() - interval '#{RETENTION_INTERVAL}';
+      delete from net._http_response
     SQL
 
     def self.call
@@ -18,7 +16,7 @@ module Maintenance
 
       {
         success: true,
-        message: "Pruned #{deleted_rows} cron.job_run_details rows older than #{RETENTION_INTERVAL}"
+        message: "Pruned #{deleted_rows} net._http_response rows"
       }
     ensure
       connection&.close

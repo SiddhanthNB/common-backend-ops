@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require_relative "../../test_helper"
-require_relative "../../../lib/ops/maintenance/prune_cron_job_runs"
+require_relative "../../../lib/ops/maintenance/prune_net_http_responses"
 
-class PruneCronJobRunsTest < Minitest::Test
+class PruneNetHttpResponsesTest < Minitest::Test
   class FakeResult
     attr_reader :cmd_tuples
 
@@ -32,7 +32,7 @@ class PruneCronJobRunsTest < Minitest::Test
     end
   end
 
-  def test_call_prunes_old_cron_job_run_records
+  def test_call_prunes_net_http_response_rows
     captured_connection = nil
 
     with_env(
@@ -43,16 +43,16 @@ class PruneCronJobRunsTest < Minitest::Test
         captured_connection = FakeConnection.new(
           uri,
           deleted_rows_by_query: {
-            Maintenance::PruneCronJobRuns::QUERY => 12
+            Maintenance::PruneNetHttpResponses::QUERY => 61
           }
         )
       }) do
-        result = Maintenance::PruneCronJobRuns.call
+        result = Maintenance::PruneNetHttpResponses.call
 
         assert_equal true, result[:success]
-        assert_equal "Pruned 12 cron.job_run_details rows older than 7 days", result[:message]
+        assert_equal "Pruned 61 net._http_response rows", result[:message]
         assert_equal "postgres://user:pa%24%24+word@db.example.com:5432/postgres", captured_connection.uri
-        assert_equal [Maintenance::PruneCronJobRuns::QUERY], captured_connection.queries
+        assert_equal [Maintenance::PruneNetHttpResponses::QUERY], captured_connection.queries
         assert_equal true, captured_connection.closed
       end
     end
