@@ -23,6 +23,8 @@ GEM
     mongo (2.24.0)
       base64
       bson (>= 4.14.1, < 6.0.0)
+    mysql2 (0.5.7)
+      bigdecimal
     pg (1.6.3)
     pg (1.6.3-x86_64-linux)
     public_suffix (7.0.5)
@@ -50,6 +52,7 @@ DEPENDENCIES
   logger (~> 1.7)
   minitest (~> 5.25)
   mongo (~> 2.24)
+  mysql2 (~> 0.5)
   pg (~> 1.6)
   rake (~> 13.3)
   redis (~> 5.4)
@@ -68,6 +71,7 @@ CHECKSUMS
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
   minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
   mongo (2.24.0) sha256=ff23d23157dc4a1f90f162625460d973b7ffa89ee78e6bb45a6003b3f5a67190
+  mysql2 (0.5.7) sha256=ba09ede515a0ae8a7192040a1b778c0fb0f025fa5877e9be895cd325fa5e9d7b
   pg (1.6.3) sha256=1388d0563e13d2758c1089e35e973a3249e955c659592d10e5b77c468f628a99
   pg (1.6.3-x86_64-linux) sha256=5d9e188c8f7a0295d162b7b88a768d8452a899977d44f3274d1946d67920ae8d
   public_suffix (7.0.5) sha256=1a8bb08f1bbea19228d3bed6e5ed908d1cb4f7c2726d18bd9cadf60bc676f623

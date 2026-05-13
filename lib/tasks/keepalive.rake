@@ -78,4 +78,58 @@ namespace :keepalive do
     )
     exit(1)
   end
+
+  desc "Run SELECT 1 against the Aiven PostgreSQL and MySQL instances"
+  task :aiven_databases do
+    require_relative "../common/app_logger"
+    require_relative "../common/github_step_summary"
+    require_relative "../ops/keepalive/aiven_databases"
+
+    title = "Aiven Databases Keepalive"
+
+    AppLogger.info("Starting #{title}")
+    result = Keepalive::AivenDatabases.call
+
+    success = result.fetch(:success)
+    message = result.fetch(:message)
+
+    if success
+      AppLogger.info("#{title}: #{message}")
+    else
+      AppLogger.error("#{title}: #{message}")
+    end
+
+    GithubStepSummary.append(
+      [
+        "## #{title}",
+        "",
+        "- Status: #{success ? 'PASS' : 'FAIL'}",
+        "- Details: #{message}"
+      ].join("\n")
+    )
+
+    result.fetch(:results).each do |target_result|
+      GithubStepSummary.append(
+        [
+          "### #{target_result[:name]}",
+          "",
+          "- Status: #{target_result[:success] ? 'SUCCESS' : 'FAILURE'}",
+          "- Details: #{target_result[:message]}"
+        ].join("\n")
+      )
+    end
+
+    exit(1) unless success
+  rescue StandardError => error
+    AppLogger.error("#{title} failed: #{error.message}")
+    GithubStepSummary.append(
+      [
+        "## #{title}",
+        "",
+        "- Status: FAIL",
+        "- Details: #{error.message}"
+      ].join("\n")
+    )
+    exit(1)
+  end
 end

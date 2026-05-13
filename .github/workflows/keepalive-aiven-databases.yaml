@@ -1,0 +1,25 @@
+name: "Keepalive: Aiven Databases"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Keep Aiven databases alive
+        env:
+          AIVEN_PG_URL: ${{ secrets.AIVEN_PG_URL }}
+          AIVEN_MYSQL_URL: ${{ secrets.AIVEN_MYSQL_URL }}
+        run: bundle exec rake keepalive:aiven_databases
