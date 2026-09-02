@@ -20,7 +20,7 @@ module Keepalive
     ].freeze
 
     MYSQL_KEEPALIVE_QUERIES = [
-      "CREATE TEMPORARY TABLE aiven_keepalive_probe (pinged_at DATETIME(6) NOT NULL)",
+      "CREATE TEMPORARY TABLE aiven_keepalive_probe (id BIGINT AUTO_INCREMENT PRIMARY KEY, pinged_at DATETIME(6) NOT NULL)",
       "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (CURRENT_TIMESTAMP(6))",
       "SELECT SLEEP(#{PROBE_DELAY_SECONDS})",
       "DROP TEMPORARY TABLE aiven_keepalive_probe"

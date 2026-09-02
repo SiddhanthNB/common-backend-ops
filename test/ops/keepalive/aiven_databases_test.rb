@@ -82,7 +82,7 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
 
     assert_equal(
       [
-        "CREATE TEMPORARY TABLE aiven_keepalive_probe (pinged_at DATETIME(6) NOT NULL)",
+        "CREATE TEMPORARY TABLE aiven_keepalive_probe (id BIGINT AUTO_INCREMENT PRIMARY KEY, pinged_at DATETIME(6) NOT NULL)",
         "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (CURRENT_TIMESTAMP(6))",
         "SELECT SLEEP(2)",
         "DROP TEMPORARY TABLE aiven_keepalive_probe"
