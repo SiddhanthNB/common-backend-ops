@@ -38,7 +38,7 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
     end
   end
 
-  def test_call_runs_select_1_against_both_databases
+  def test_call_runs_temporary_write_probes_against_both_databases
     postgres_connection = FakePostgresConnection.new
     mysql_client = FakeMysqlClient.new
     captures = {}
@@ -63,12 +63,34 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
     )
 
     assert_equal true, result[:success]
-    assert_equal "2/2 Aiven databases responded to SELECT 1", result[:message]
+    assert_equal(
+      "2/2 Aiven databases completed keepalive probes",
+      result[:message]
+    )
+
     assert_equal "postgres://pg.example.com/app", captures[:pg_url]
-    assert_equal ["SELECT 1"], postgres_connection.queries
+    assert_equal(
+      [
+        "CREATE TEMP TABLE aiven_keepalive_probe (pinged_at TIMESTAMPTZ NOT NULL)",
+        "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (NOW())",
+        "SELECT pg_sleep(2)",
+        "DROP TABLE aiven_keepalive_probe"
+      ],
+      postgres_connection.queries
+    )
     assert_equal true, postgres_connection.closed
-    assert_equal ["SELECT 1"], mysql_client.queries
+
+    assert_equal(
+      [
+        "CREATE TEMPORARY TABLE aiven_keepalive_probe (pinged_at DATETIME(6) NOT NULL)",
+        "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (CURRENT_TIMESTAMP(6))",
+        "SELECT SLEEP(2)",
+        "DROP TEMPORARY TABLE aiven_keepalive_probe"
+      ],
+      mysql_client.queries
+    )
     assert_equal true, mysql_client.closed
+
     assert_equal(
       {
         host: "mysql.example.com",
@@ -83,10 +105,19 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
       },
       captures[:mysql_options]
     )
+
     assert_equal(
       [
-        { name: "Aiven PostgreSQL", success: true, message: "SELECT 1 succeeded" },
-        { name: "Aiven MySQL", success: true, message: "SELECT 1 succeeded" }
+        {
+          name: "Aiven PostgreSQL",
+          success: true,
+          message: "Temporary write probe succeeded"
+        },
+        {
+          name: "Aiven MySQL",
+          success: true,
+          message: "Temporary write probe succeeded"
+        }
       ],
       result[:results]
     )
@@ -112,13 +143,30 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
     )
 
     assert_equal false, result[:success]
-    assert_equal "1/2 Aiven databases responded to SELECT 1", result[:message]
+    assert_equal(
+      "1/2 Aiven databases completed keepalive probes",
+      result[:message]
+    )
+
     assert_equal(
       [
-        { name: "Aiven PostgreSQL", success: false, message: "postgres timeout" },
-        { name: "Aiven MySQL", success: true, message: "SELECT 1 succeeded" }
+        {
+          name: "Aiven PostgreSQL",
+          success: false,
+          message: "postgres timeout"
+        },
+        {
+          name: "Aiven MySQL",
+          success: true,
+          message: "Temporary write probe succeeded"
+        }
       ],
       result[:results]
+    )
+
+    assert_equal(
+      Keepalive::AivenDatabases::MYSQL_KEEPALIVE_QUERIES,
+      mysql_client.queries
     )
     assert_equal true, mysql_client.closed
   end
