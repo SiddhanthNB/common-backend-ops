@@ -10,20 +10,15 @@ require_relative "../../common/env_vars"
 module Keepalive
   module AivenDatabases
     CONNECT_TIMEOUT_SECONDS = 5
-    PROBE_DELAY_SECONDS = 2
 
     POSTGRES_KEEPALIVE_QUERIES = [
-      "CREATE TEMP TABLE aiven_keepalive_probe (pinged_at TIMESTAMPTZ NOT NULL)",
-      "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (NOW())",
-      "SELECT pg_sleep(#{PROBE_DELAY_SECONDS})",
-      "DROP TABLE aiven_keepalive_probe"
+      "CREATE TABLE IF NOT EXISTS ops_keepalive (id INT PRIMARY KEY, pinged_at TIMESTAMPTZ NOT NULL)",
+      "INSERT INTO ops_keepalive (id, pinged_at) VALUES (1, NOW()) ON CONFLICT (id) DO UPDATE SET pinged_at = EXCLUDED.pinged_at"
     ].freeze
 
     MYSQL_KEEPALIVE_QUERIES = [
-      "CREATE TEMPORARY TABLE aiven_keepalive_probe (id BIGINT AUTO_INCREMENT PRIMARY KEY, pinged_at DATETIME(6) NOT NULL)",
-      "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (CURRENT_TIMESTAMP(6))",
-      "SELECT SLEEP(#{PROBE_DELAY_SECONDS})",
-      "DROP TEMPORARY TABLE aiven_keepalive_probe"
+      "CREATE TABLE IF NOT EXISTS ops_keepalive (id INT PRIMARY KEY, pinged_at DATETIME(6) NOT NULL)",
+      "INSERT INTO ops_keepalive (id, pinged_at) VALUES (1, CURRENT_TIMESTAMP(6)) ON DUPLICATE KEY UPDATE pinged_at = CURRENT_TIMESTAMP(6)"
     ].freeze
 
     def self.call(
@@ -56,7 +51,7 @@ module Keepalive
       {
         name: "Aiven PostgreSQL",
         success: true,
-        message: "Temporary write probe succeeded"
+        message: "Persistent write probe succeeded"
       }
     rescue StandardError => error
       {
@@ -78,7 +73,7 @@ module Keepalive
       {
         name: "Aiven MySQL",
         success: true,
-        message: "Temporary write probe succeeded"
+        message: "Persistent write probe succeeded"
       }
     rescue StandardError => error
       {

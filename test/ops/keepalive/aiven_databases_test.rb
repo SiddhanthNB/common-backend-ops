@@ -38,7 +38,7 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
     end
   end
 
-  def test_call_runs_temporary_write_probes_against_both_databases
+  def test_call_runs_persistent_write_probes_against_both_databases
     postgres_connection = FakePostgresConnection.new
     mysql_client = FakeMysqlClient.new
     captures = {}
@@ -71,10 +71,8 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
     assert_equal "postgres://pg.example.com/app", captures[:pg_url]
     assert_equal(
       [
-        "CREATE TEMP TABLE aiven_keepalive_probe (pinged_at TIMESTAMPTZ NOT NULL)",
-        "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (NOW())",
-        "SELECT pg_sleep(2)",
-        "DROP TABLE aiven_keepalive_probe"
+        "CREATE TABLE IF NOT EXISTS ops_keepalive (id INT PRIMARY KEY, pinged_at TIMESTAMPTZ NOT NULL)",
+        "INSERT INTO ops_keepalive (id, pinged_at) VALUES (1, NOW()) ON CONFLICT (id) DO UPDATE SET pinged_at = EXCLUDED.pinged_at"
       ],
       postgres_connection.queries
     )
@@ -82,10 +80,8 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
 
     assert_equal(
       [
-        "CREATE TEMPORARY TABLE aiven_keepalive_probe (id BIGINT AUTO_INCREMENT PRIMARY KEY, pinged_at DATETIME(6) NOT NULL)",
-        "INSERT INTO aiven_keepalive_probe (pinged_at) VALUES (CURRENT_TIMESTAMP(6))",
-        "SELECT SLEEP(2)",
-        "DROP TEMPORARY TABLE aiven_keepalive_probe"
+        "CREATE TABLE IF NOT EXISTS ops_keepalive (id INT PRIMARY KEY, pinged_at DATETIME(6) NOT NULL)",
+        "INSERT INTO ops_keepalive (id, pinged_at) VALUES (1, CURRENT_TIMESTAMP(6)) ON DUPLICATE KEY UPDATE pinged_at = CURRENT_TIMESTAMP(6)"
       ],
       mysql_client.queries
     )
@@ -111,12 +107,12 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
         {
           name: "Aiven PostgreSQL",
           success: true,
-          message: "Temporary write probe succeeded"
+          message: "Persistent write probe succeeded"
         },
         {
           name: "Aiven MySQL",
           success: true,
-          message: "Temporary write probe succeeded"
+          message: "Persistent write probe succeeded"
         }
       ],
       result[:results]
@@ -158,7 +154,7 @@ class AivenDatabasesKeepaliveTest < Minitest::Test
         {
           name: "Aiven MySQL",
           success: true,
-          message: "Temporary write probe succeeded"
+          message: "Persistent write probe succeeded"
         }
       ],
       result[:results]

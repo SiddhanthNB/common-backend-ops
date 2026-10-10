@@ -79,7 +79,7 @@ namespace :keepalive do
     exit(1)
   end
 
-  desc "Run SELECT 1 against the Aiven PostgreSQL and MySQL instances"
+  desc "Upsert a keepalive row in the Aiven PostgreSQL and MySQL instances"
   task :aiven_databases do
     require_relative "../common/app_logger"
     require_relative "../common/github_step_summary"
